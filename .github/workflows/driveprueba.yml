@@ -1,0 +1,26 @@
+name: Backup to Google Drive
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Compress project files into backup.zip
+        run: |
+          zip -r backup.zip . -x "*.git*" "*.github*" "node_modules/*"
+
+      - name: Upload ZIP to Google Drive
+        uses: logickoder/google-drive-upload@main
+        with:
+          credentials: ${{ secrets.GCP_CREDENTIALS }}
+          filename: "./backup.zip"
+          folderID: ${{ secrets.DRIVE_FOLDER_ID }}
+          overwrite: "true"
